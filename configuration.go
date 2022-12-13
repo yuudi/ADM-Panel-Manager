@@ -1,17 +1,30 @@
 package main
 
+import (
+	"encoding/json"
+	"os"
+)
+
 type Configuration struct {
-	MasterPasswordHmac string `json:"master_password_hmac"`
-	SecondFactorAuth   struct {
-		Enabled bool `json:"enabled"`
+	Auth struct {
+		PasswordHmac string `json:"password_hmac"`
+		PasswordSalt string `json:"password_salt"`
+	} `json:"auth"`
+	SecondFactorAuth struct {
+		TOTP struct {
+			Enabled bool   `json:"enabled"`
+			Key     string `json:"key"`
+		} `json:"totp"`
+		WebAuthn struct {
+			Enabled bool `json:"enabled"`
+		} `json:"webauthn"`
 	} `json:"second_factor_auth"`
 }
 
-type ContainerManager struct {
-}
-
-type SiteManager struct{}
-
 func (c *Configuration) Load(path string) error {
-	return nil
+	fileContent, err := os.ReadFile(path)
+	if err != nil {
+		return err
+	}
+	return json.Unmarshal(fileContent, &c)
 }
