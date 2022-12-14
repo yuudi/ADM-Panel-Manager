@@ -2,26 +2,27 @@ package main
 
 import (
 	"fmt"
-	"net/http"
 	"os"
 	"runtime"
 
 	"github.com/gin-gonic/gin"
+
+	"github.com/yuudi/ADM-Panel-manager/panel"
+	"github.com/yuudi/ADM-Panel-manager/routes"
 )
 
 func entry() error {
-	var config Configuration
+	var config panel.Configuration
 	configPath := "/var/aid/config.json"
 	if err := config.Load(configPath); err != nil {
 		return err
 	}
 
+	panel.NewPanel(config)
+
+	// gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()
-	r.GET("/ping", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"message": "pong",
-		})
-	})
+	routes.RegisterRoutes(r)
 	return r.Run("127.0.0.1:9876")
 }
 
