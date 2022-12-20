@@ -13,8 +13,7 @@ import (
 
 func entry() error {
 	var config panel.Configuration
-	configPath := "/var/aid/config.json"
-	if err := config.Load(configPath); err != nil {
+	if err := config.Load(); err != nil {
 		return err
 	}
 
