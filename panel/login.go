@@ -21,7 +21,7 @@ type LoginRequestToken struct {
 
 type LoginRequest struct {
 	LoginRequestTokenString string `json:"login_token_string"`
-	LoginHmac               string `json:"login_hmac"`
+	LoginHmacHex            string `json:"login_hmac_hex"`
 }
 
 type UserToken struct {
@@ -81,8 +81,8 @@ func (l *LoginRequest) Verify() (bool, error) {
 	if loginRequestToken.Timestamp+60 < time.Now().Unix() {
 		return false, errors.New("token expired")
 	}
-	mac := HmacSha256String(panelInstance.config.Auth.PasswordHmac, l.LoginRequestTokenString)
-	if mac != l.LoginHmac {
+	mac := HmacSha256Hex(panelInstance.config.Auth.PasswordHmacHex, l.LoginRequestTokenString)
+	if mac != l.LoginHmacHex {
 		return false, errors.New("hmac not match")
 	}
 	return true, nil

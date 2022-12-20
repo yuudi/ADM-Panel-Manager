@@ -9,13 +9,13 @@ var configPath = "/var/aid/config.json"
 
 type Configuration struct {
 	Auth struct {
-		PasswordHmac string `json:"password_hmac"`
-		PasswordSalt string `json:"password_salt"`
+		PasswordHmacHex string `json:"password_hmac_hex"`
+		PasswordSaltHex string `json:"password_salt_hex"`
 	} `json:"auth"`
 	SecondFactorAuth struct {
 		TOTP struct {
 			Enabled bool   `json:"enabled"`
-			Key     string `json:"key"`
+			KeyHex  string `json:"key_hex"`
 		} `json:"totp"`
 		WebAuthn struct {
 			Enabled bool `json:"enabled"`

@@ -12,7 +12,11 @@ func HmacSha256(key, data []byte) []byte {
 	return mac.Sum(nil)
 }
 
-func HmacSha256String(key, data string) string {
+func HmacSha256Hex(keyHex, data string) string {
+	key, err := hex.DecodeString(keyHex)
+	if err != nil {
+		panic(err)
+	}
 	macBytes := (HmacSha256([]byte(key), []byte(data)))
 	macHex := hex.EncodeToString(macBytes)
 	return macHex
