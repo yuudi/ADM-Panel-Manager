@@ -25,7 +25,8 @@ type LoginRequest struct {
 }
 
 type UserToken struct {
-	Username string `json:"username"`
+	Username   string `json:"username"`
+	ExpireTime int64  `json:"expire_time"`
 }
 
 type LoginResponse struct {
@@ -69,7 +70,7 @@ func (l *LoginRequestToken) ParseJwtString(tokenString string) error {
 	return nil
 }
 
-func (l *LoginRequest) Verify() (bool, error) {
+func (l *LoginRequest) VerifyPassword(passwordHmacHex string) (bool, error) {
 	loginRequestToken := LoginRequestToken{}
 	err := loginRequestToken.ParseJwtString(l.LoginRequestTokenString)
 	if err != nil {
@@ -81,9 +82,40 @@ func (l *LoginRequest) Verify() (bool, error) {
 	if loginRequestToken.Timestamp+60 < time.Now().Unix() {
 		return false, errors.New("token expired")
 	}
-	mac := HmacSha256Hex(panelInstance.config.Auth.PasswordHmacHex, l.LoginRequestTokenString)
+	mac := HmacSha256Hex(passwordHmacHex, l.LoginRequestTokenString)
 	if mac != l.LoginHmacHex {
 		return false, errors.New("hmac not match")
 	}
 	return true, nil
+}
+
+func (u *UserToken) ToJwtString() (string, error) {
+	token := jwt.New(jwt.SigningMethodHS256)
+	claims := token.Claims.(jwt.MapClaims)
+	claims["username"] = u.Username
+	claims["expire_time"] = u.ExpireTime
+	tokenString, err := token.SignedString(secretKey)
+	if err != nil {
+		return "", err
+	}
+	return tokenString, nil
+}
+
+func (u *UserToken) ParseJwtString(tokenString string) error {
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, errors.New("invalid token")
+		}
+		return secretKey, nil
+	})
+	if err != nil {
+		return err
+	}
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok {
+		return errors.New("invalid token")
+	}
+	u.Username = claims["username"].(string)
+	u.ExpireTime = int64(claims["expire_time"].(float64))
+	return nil
 }
