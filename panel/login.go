@@ -20,7 +20,7 @@ type LoginRequestToken struct {
 }
 
 type LoginRequest struct {
-	LoginRequestTokenString string `json:"login_token_string"`
+	LoginRequestTokenString string `json:"login_request_token"`
 	LoginHmacHex            string `json:"login_hmac_hex"`
 }
 
@@ -33,6 +33,16 @@ type LoginResponse struct {
 	Sueecss         bool   `json:"success"`
 	Message         string `json:"message"`
 	UserTokenString string `json:"user_token_string"`
+}
+
+func NewLoginRequestToken(username string, remoteAddress string) *LoginRequestToken {
+	nonce := randString(32)
+	return &LoginRequestToken{
+		Username:      username,
+		Timestamp:     time.Now().Unix(),
+		RemoteAddress: remoteAddress,
+		Nonce:         nonce,
+	}
 }
 
 func (l *LoginRequestToken) ToJwtString() (string, error) {
@@ -71,17 +81,6 @@ func (l *LoginRequestToken) ParseJwtString(tokenString string) error {
 }
 
 func (l *LoginRequest) VerifyPassword(passwordHmacHex string) (bool, error) {
-	loginRequestToken := LoginRequestToken{}
-	err := loginRequestToken.ParseJwtString(l.LoginRequestTokenString)
-	if err != nil {
-		return false, err
-	}
-	// if loginRequestToken.RemoteAddress != remoteAddress {
-	// 	return false, errors.New("remote address not match")
-	// }
-	if loginRequestToken.Timestamp+60 < time.Now().Unix() {
-		return false, errors.New("token expired")
-	}
 	mac := HmacSha256Hex(passwordHmacHex, l.LoginRequestTokenString)
 	if mac != l.LoginHmacHex {
 		return false, errors.New("hmac not match")

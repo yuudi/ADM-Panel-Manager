@@ -1,12 +1,17 @@
 package panel
 
 type Panel struct {
-	config Configuration
+	Config Configuration
 }
 
 var panelInstance *Panel = nil
 
 func NewPanel(config Configuration) *Panel {
-	panelInstance = &Panel{config: config}
+	panelInstance = &Panel{Config: config}
+	return panelInstance
+}
+
+func GetPanelInstance() *Panel {
+	//TODO
 	return panelInstance
 }

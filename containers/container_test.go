@@ -16,6 +16,6 @@ func TestList(t *testing.T) {
 	}
 	fmt.Printf("%d containers", len(containers))
 	for _, container := range containers {
-		fmt.Println(container.ID)
+		fmt.Println(container.Names)
 	}
 }
