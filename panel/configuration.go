@@ -5,7 +5,15 @@ import (
 	"os"
 )
 
-var configPath = "/var/aid/config.json"
+func EnvironmentVariable(key, defaultValue string) string {
+	value := os.Getenv(key)
+	if value == "" {
+		return defaultValue
+	}
+	return value
+}
+
+var configPath = EnvironmentVariable("ADM_CONFIG_PATH", "config.json")
 
 type Configuration struct {
 	Auth struct {
@@ -24,6 +32,12 @@ type Configuration struct {
 }
 
 func (c *Configuration) Load() error {
+	// test if config file is readable
+	if _, err := os.Stat(configPath); err != nil {
+		c.Save()
+		return nil
+	}
+
 	fileContent, err := os.ReadFile(configPath)
 	if err != nil {
 		return err

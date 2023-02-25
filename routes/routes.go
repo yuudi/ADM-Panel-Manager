@@ -42,6 +42,7 @@ func RegisterRoutes(r *gin.Engine) {
 			return
 		}
 		c.JSON(200, gin.H{
+			"salt_hex":            panel.GetPanelInstance().Config.Auth.PasswordSaltHex,
 			"login_request_token": loginRequestTokenString,
 		})
 	})
