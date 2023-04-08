@@ -3,7 +3,7 @@ module github.com/yuudi/ADM-Panel-manager
 go 1.19
 
 require (
-	github.com/docker/docker v20.10.22+incompatible
+	github.com/docker/docker v20.10.24+incompatible
 	github.com/gin-gonic/gin v1.8.2
 	github.com/golang-jwt/jwt/v4 v4.4.3
 )
